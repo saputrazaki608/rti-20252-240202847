@@ -123,21 +123,19 @@ Gunakan topik riset dari WS-02. Cari minimal 5 paper relevan menggunakan databas
 > - Tulis query Boolean yang digunakan: contoh `("object detection" OR "image classification") AND ("edge computing") NOT ("medical")`. Dokumentasikan query secara eksplisit.
 > - Akses gratis: buka Google Scholar → cari judul paper → klik [PDF] jika tersedia, atau akses lewat campus VPN
 
-**Topik riset:** ________________________________________
-**Query pencarian:** ____________________________________
-**Database:** ___________________________________________
-
+**Topik riset:** *Optimasi Efisiensi Model CNN untuk Deteksi Anomali Lalu Lintas Jaringan*
+**Query pencarian:** *("intrusion detection" OR "anomaly detection") AND ("CNN" OR "deep learning") AND ("efficient" OR "lightweight" OR "latency")*
+**Database:** *IEEE Xplore / Google Scholar*
 | # | Study | Tahun | Method | Dataset | Result | Limitasi |
 |---|-------|-------|--------|---------|--------|----------|
-| 1 | *Contoh: Rahman et al.* | *2023* | *CNN* | *ImageNet subset* | *Acc 91%* | *Hanya 3 kelas* |
-| 2 | | | | | | |
-| 3 | | | | | | |
-| 4 | | | | | | |
-| 5 | | | | | | |
+| 1 | *Khan et al.* | *2021* | *Efficient Lightweight CNN* | *NSL-KDD, CIDIDS-001* | *Akurasi 98.54%, mereduksi waktu komputasi secara signifikan.* | *Hanya diuji pada fitur ekstraksi statis, belum mencakup zero-day attack dinamis.* |
+| 2 | *Imrana et al.* | *2021* | *Hybrid CNN-LSTM* | *NSL-KDD* | *Akurasi 99.2%, unggul dalam mendeteksi serangan temporal.* | *Struktur hybrid meningkatkan memory overhead saat deployment.* |
+| 3 | *Binbusayyis et al.* | *2022* | *1D-CNN + Unsupervised IDBS* | *UNSW-NB15, CICIDS2017* | *F1-Score 97.8%, sangat cepat memproses lalu lintas padat.* | *Performa menurun drastis pada data dengan tingkat class imbalance ekstrem.* |
+| 4 | *Henry et al.* | *2023* | *Lightweight CNN with Gabor Filter* | *Edge-IIoTset* | *Akurasi 96.3% pada perangkat edge computing.* | *Ada sedikit penurunan akurasi demi mengejar efisiensi waktu deteksi.* |
+| 5 | *Jiang et al.* | *2024* | *Ghost-CNN (Model Compression)* | *CICIDS2017, CSE-CIC-IDS2018* | *Parameter terpangkas 45%, Akurasi stabil di 98.1%.* | *Memerlukan fase prapemrosesan data (feature engineering) yang cukup kompleks.* |
 
-**Pola yang terlihat — Metode dominan:** ___________________
-**Limitasi yang berulang:** ______________________________
-
+**Pola yang terlihat — Metode dominan:**  *Penggunaan arsitektur 1D-CNN (One-Dimensional CNN) atau teknik kompresi model (seperti Ghost Module dan integrasi arsitektur hibrida) menjadi pilihan utama untuk mengeksplorasi fitur lokal log jaringan secara cepat dan efisien.*
+**Limitasi yang berulang:** *Sebagian besar studi masih sangat bergantung pada dataset publik statis (seperti NSL-KDD atau CICIDS2017) yang terkadang tidak merepresentasikan kompleksitas variasi serangan siber baru, serta performa model yang rentan menurun ketika dihadapkan pada masalah ketidakseimbangan data (class imbalance) yang parah.*
 ---
 
 ## Latihan 2 — Gap Identification
@@ -146,14 +144,14 @@ Berdasarkan tabel di Latihan 1, identifikasi gap.
 
 | Jenis Gap | Ditemukan? | Gap Statement |
 |-----------|-----------|---------------|
-| Performance Gap | [ ] Ya / [ ] Tidak | *Contoh: Akurasi turun di bawah 80% untuk kelas minoritas* |
-| Method Gap | [ ] Ya / [ ] Tidak | |
-| Data Gap | [ ] Ya / [ ] Tidak | |
-| Context Gap | [ ] Ya / [ ] Tidak | |
+| Performance Gap | [v] Ya / [ ] Tidak | *Model CNN ringan (lightweight) berhasil memangkas waktu komputasi, namun mengalami penurunan akurasi (F1-score) yang signifikan pada pendeteksian kategori serangan minoritas.* |
+| Method Gap | [v] Ya / [ ] Tidak | *Kebanyakan metode reduksi parameter mengandalkan arsitektur 1D-CNN sederhana yang gagal menangkap dependensi temporal jangka panjang dari paket data jaringan.* |
+| Data Gap | [v] Ya / [ ] Tidak | *Evaluasi model mayoritas masih bergantung pada dataset statis berbasis lab (seperti NSL-KDD atau CICIDS2017) yang belum mencakup karakteristik serangan siber terbaru.Context Gap[X] Ya / [ ] TidakPengujian performa model lebih banyak dilakukan pada simulasi lingkungan lokal (controlled environment) dan jarang dievaluasi secara langsung pada perangkat keras edge gateway industri yang sesungguhnya.* |
+| Context Gap | [v] Ya / [ ] Tidak | *Pengujian performa model lebih banyak dilakukan pada simulasi lingkungan lokal (controlled environment) dan jarang dievaluasi secara langsung pada perangkat keras edge gateway industri yang sesungguhnya.* |
 
-**Gap utama yang dipilih:** _____________________________
+**Gap utama yang dipilih:** *Performance Gap dan Method Gap*
 **Mengapa gap ini penting (bukan sekadar "belum ada yang meneliti")?**
-> ___________________________________________________
+> *Dalam ranah keamanan siber, sebuah model IDS berbasis AI tidak boleh mengorbankan tingkat keandalan deteksi demi mengejar kecepatan operasional. Jika model dibuat terlalu ringan dengan mengabaikan pola ekstraksi fitur temporal yang mendalam (Method Gap), maka serangan-serangan berbahaya berskala kecil namun kritikal (kelas minoritas) akan lolos dari penyaringan sistem (Performance Gap). Mengatasi celah ini sangat krusial untuk memastikan infrastruktur jaringan tetap terlindungi secara optimal tanpa membebani kapasitas komputasi perangkat edge.*
 
 ---
 
@@ -163,11 +161,11 @@ Pilih 2 baseline dari literatur yang sudah dibaca.
 
 | # | Baseline | Mengapa Relevan | Mengapa Representatif | Apakah SOTA? | Sumber |
 |---|----------|----------------|----------------------|-------------|--------|
-| 1 | *Contoh: RF + TF-IDF* | *Task sama: klasifikasi teks* | *Dipakai 6 dari 10 paper* | *Bukan, tapi common practice* | *Lee et al., 2022* |
-| 2 | | | | | |
+| 1 | *Standard 1D-CNN* | *Task sama: Ekstraksi fitur log paket jaringan untuk deteksi anomali secara otomatis.* | *Merupakan arsitektur paling mendasar yang dipakai oleh mayoritas paper pembanding.* | *Bukan, tapi merupakan common practice / fondasi utama.* | *Khan et al., 2021* |
+| 2 | *Hybrid CNN-LSTM* | *Task sama: Menangkap pola spasial sekaligus hubungan temporal paket jaringan.* | *Sering digunakan sebagai pembanding tingkat lanjut untuk menguji akurasi vs efisiensi.* | *Ya, salah satu State-of-the-Art (SOTA) untuk deteksi berbasis deret waktu.* | *Imrana et al., 2021* |
 
-**Apakah pemilihan baseline ini bisa dianggap straw man?** [ ] Ya / [ ] Tidak
-> Justifikasi: ________________________________________
+**Apakah pemilihan baseline ini bisa dianggap straw man?** [ ] Ya / [v] Tidak
+> Justifikasi: *Pemilihan ini bukan straw man fallacy karena kita tidak memilih model lemah yang sengaja diatur agar mudah dikalahkan. Sebaliknya, kita menyandingkan model usulan kita langsung dengan arsitektur standar industri (Standard 1D-CNN) serta model dengan akurasi SOTA (CNN-LSTM). Ini merupakan uji komparasi yang adil dan valid untuk membuktikan apakah model baru kita benar-benar berhasil memangkas latensi tanpa merusak akurasi secara drastis.*
 
 ---
 
@@ -176,5 +174,10 @@ Pilih 2 baseline dari literatur yang sudah dibaca.
 > Apa perbedaan antara "belum ada yang meneliti ini" (klaim tanpa bukti) dengan research gap yang valid? Bagaimana cara membuktikan bahwa sebuah gap benar-benar ada?
 
 **Jawaban:**
-> ___________________________________________________
-> ___________________________________________________
+> *Klaim Tanpa Bukti ("Belum ada yang meneliti ini"): Sering kali muncul dari asumsi sepihak karena kurangnya membaca literatur. Pernyataan ini bersifat spekulatif dan rentan salah, karena bisa jadi topik tersebut sebenarnya sudah banyak diteliti namun menggunakan istilah atau kata kunci pencarian yang berbeda.*
+
+>*Research Gap yang Valid: Merupakan kesenjangan yang ditemukan secara objektif setelah memetakan literatur secara kritis. Gap ini menunjukkan batasan performa (performance limit), inkonsistensi hasil eksperimen terdahiva, atau kelemahan metodologi tertentu dari solusi-solusi yang sudah ada.*
+
+*Cara Membuktikan Bahwa Sebuah Gap Benar-Benar Ada:*
+
+*Gap dapat dibuktikan dengan menyusun Tabel Literatur Berorientasi Konsep (Concept-Centric Literature Table) seperti yang dilakukan di latihan sebelumnya. Dari tabel tersebut, kita mengelompokkan temuan-temuan peneliti terdahulu, lalu menunjukkan bukti empiris berulang (misalnya: menunjukkan data bahwa 5 paper SOTA terakhir semuanya mengalami penurunan akurasi pada kelas minoritas demi mengejar kecepatan). Dengan menyajikan kutipan, data metrik, dan keterbatasan dari paper-paper bereputasi, eksistensi gap tersebut menjadi tidak terbantahkan secara ilmiah.*
