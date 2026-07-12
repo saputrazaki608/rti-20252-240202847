@@ -96,15 +96,15 @@ Susun execution plan untuk eksperimen Anda. Tentukan skenario, jumlah run, dan s
 
 | Run # | Skenario | Seed | Parameter Kunci | Status |
 |-------|----------|------|----------------|--------|
-| *1* | *Contoh: BERT-base, DS-1* | *42* | *lr=2e-5, epoch=10* | *Planned* |
-| *2* | *BERT-base, DS-1* | *123* | *lr=2e-5, epoch=10* | *Planned* |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| *1* | *Baseline: Standard 1D-CNN, CICIDS2017* | *42* | *$lr=0.001, batch=256, epoch=50$* | *Planned* |
+| *2* | *Baseline: Hybrid CNN-LSTM, CICIDS2017* | *42* | *$lr=0.001, batch=256, epoch=50$* | *Planned* |
+| 3 | *Proposed: Lightweight CNN + Attention, DS-1* | *42* | *$lr=0.001, batch=256, epoch=50$* | *Planned* |
+| 4 | *Proposed: Lightweight CNN + Attention, DS-1* | *123* | *$lr=0.001, batch=256, epoch=50$* | *Planned* |
+| 5 | *Proposed: Lightweight CNN + Attention, DS-1* | *999* | *$lr=0.001, batch=256, epoch=50$* | *Planned* |
 
-**Total skenario:** ____
-**Run per skenario:** ____
-**Total run keseluruhan:** ____
+**Total skenario:** 3 (Standard 1D-CNN, Hybrid CNN-LSTM, dan Lightweight CNN+Attention)
+**Run per skenario:** Bervariasi (1 run untuk masing-masing baseline sebagai perbandingan acuan, dan 3 run dengan variasi seed berbeda untuk skenario model usulan guna menguji stabilitas)
+**Total run keseluruhan:** 5
 
 ---
 
@@ -115,25 +115,25 @@ Desain format data log untuk eksperimen Anda. Tentukan field apa saja yang akan 
 **Identitas:**
 | Field | Contoh |
 |-------|--------|
-| Run ID | *run-001* |
-| Timestamp | *2025-03-15T10:30:00* |
+| Run ID | *run-lcnn-att-003* |
+| Timestamp | *2026-07-05T09:40:00* |
 | | |
 
 **Konfigurasi:**
 | Field | Contoh |
 |-------|--------|
 | Seed | *42* |
-| Code version | *commit abc1234* |
-| | |
-
+| Code version | *commit b10c7a8ef9* |
+| Model Architecture | *Lightweight_CNN_Attention* |
+| Learning Rate | *0.001* |
 **Hasil:**
 | Metrik | Tipe Data | Range Valid |
 |--------|----------|-------------|
-| *Contoh: Accuracy* | *float* | *0.0 – 1.0* |
-| | | |
-| | | |
+| *Inference Latency* | *float* | *$0.1 - 10.0$ (ms per paket)* |
+| *F1-Score Minoritas* | *float* | *$0.0 - 1.0$* |
+| *Total Trainable Params* | *int* | *>0* |
 
-**Format output:** [ ] CSV / [ ] JSON / [ ] Database / [ ] Lainnya: ____
+**Format output:** [ ] CSV / [v] JSON / [ ] Database / [ ] Lainnya: ____
 
 ---
 
@@ -143,10 +143,10 @@ Rencanakan bagaimana menangani anomali. Untuk setiap jenis, tentukan langkah yan
 
 | Jenis Anomali | Contoh | Tindakan |
 |---------------|--------|----------|
-| Run gagal (crash) | *Contoh: OOM pada batch_size=64* | *Contoh: Dokumentasi, re-run batch_size=32, catat perubahan* |
-| Hasil ekstrem | | |
-| Waktu eksekusi anomali | | |
-| Inkonsistensi dengan run lain | | |
+| Run gagal (crash) | *CUDA out of memory saat memproses evaluasi batch besar.* | *Dokumentasikan sisa memori, perkecil batch_size evaluasi ke 128 (pertahankan ukuran batch latihan), jalankan ulang (re-run), dan tandai perubahan konfigurasi di catatan log.* |
+| Hasil ekstrem | *Nilai F1-score minoritas jatuh ke angka 0.00 tiba-tiba.* | *Hentikan alur eksekusi, periksa fungsi kalkulasi bobot loss (Class Weights), investigasi apakah terjadi vanishing gradient, simpan grafik loss trajectory, lalu dokumentasikan fenomena tersebut sebelum mengatur ulang inisialisasi bobot.* |
+| Waktu eksekusi anomali | *Inference latency melonjak drastis hingga > 15 ms pada iterasi tertentu.* | *Periksa beban utilisasi CPU/GPU host. Jika ada proses latar belakang sistem operasi (background OS update atau throttling), bersihkan memori perangkat keras, dinginkan komponen, lalu ulangi run pengujian latensi secara terisolasi.* |
+| Inkonsistensi dengan run lain | *Skor F1 menyimpang > 0.15 antar seed yang berbeda.* | *Investigasi distribusi sampel di fungsi pencacah data (Data Loader). Pastikan Stratified K-Fold atau pembagian data berjalan konstan di setiap variasi seed. Dokumentasikan varians performa tersebut.* |
 
 **Prinsip:** Detect → Investigate → Document → Decide
 
@@ -157,6 +157,10 @@ Rencanakan bagaimana menangani anomali. Untuk setiap jenis, tentukan langkah yan
 > Pernahkah Anda melaporkan hasil riset/tugas dari single run? Apa risikonya? Bagaimana multiple run mengubah kepercayaan terhadap hasil?
 
 **Pengalaman sebelumnya:**
-> ___________________________________________________
+> Ya, pada tugas-tugas kuliah pemrograman atau eksperimen awal, saya sering kali terburu-buru langsung melaporkan hasil akurasi model hanya dari single run pengujian.
+> Risiko single run: Hasil tersebut sangat rentan terhadap bias keberuntungan (cherry-picking). Bisa jadi model mendapatkan skor tinggi hanya karena inisialisasi bobot acak (lucky seed) sedang berada pada kondisi optimal untuk data uji tersebut, sementara performa aslinya di lapangan sangat tidak stabil atau lambat.
 **Yang akan dilakukan berbeda:**
-> ___________________________________________________
+> Menerapkan Kunci Eksplisit Variasi Seed: Saya tidak akan lagi mengandalkan satu kali eksekusi acak. Saya akan menguji model usulan menggunakan minimal 3 hingga 5 benih acak (random seed) berbeda yang ditentukan di awal untuk melihat konsistensi performa aslinya.
+> Mencatat Varians dan Deviasi Standar: Alih-alih hanya menyajikan satu angka performa terbaik, saya akan melaporkan performa model dalam bentuk nilai rata-rata (mean) disertai deviasi standar ( standard deviation) untuk metrik F1-score dan inference latency.
+> Melakukan Isolasi Perangkat Keras saat Uji Latensi: Untuk pengujian metrik fisik seperti kecepatan inferensi (latency), saya akan memastikan seluruh proses latar belakang (background processes) dinonaktifkan secara ketat agar fluktuasi data murni dipengaruhi oleh efisiensi arsitektur Lightweight CNN, bukan karena intervensi beban komputasi luar.
+> Menggunakan Format Log Terstruktur Otomatis: Saya akan mengintegrasikan skrip pengecekan otomatis yang langsung mengekspor seluruh konfigurasi hyperparameter dan hasil metrik ke dalam satu berkas berkode JSON setiap kali run selesai, guna menghindari kesalahan pencatatan manual (human error).
