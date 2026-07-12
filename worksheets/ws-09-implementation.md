@@ -109,23 +109,23 @@ Dokumentasikan environment untuk eksperimen Anda (boleh environment saat ini ata
 
 | Komponen | Spesifikasi |
 |----------|------------|
-| CPU | *Contoh: Intel Core i7-12700H, 14 Core* |
-| RAM | *Contoh: 32 GB DDR5* |
-| GPU | *Contoh: NVIDIA RTX 3060 6GB / CPU-only jika tidak ada GPU* |
-| OS | *Contoh: Ubuntu 22.04 LTS / Windows 11* |
-| Runtime | |
-| Framework | |
-| Random Seed | |
+| CPU | *Intel Core i5-12400F @ 2.50GHz (6 Cores, 12 Threads)* |
+| RAM | *16 GB DDR4 Dual-Channel* |
+| GPU | *NVIDIA GeForce RTX 3050 8GB VRAM* |
+| OS | *Windows 11 Home / Linux Ubuntu 22.04 LTS via WSL2* |
+| Runtime | *Python 3.10.12* |
+| Framework | *PyTorch 2.1.2 + CUDA 11.8* |
+| Random Seed | *42* |
 
 **Dependencies (minimal 5):**
 
 | Library | Version | Alasan Dibutuhkan |
 |---------|---------|-------------------|
-| *Contoh: scikit-learn* | *1.3.2* | *Klasifikasi + evaluasi metrik* |
-| | | |
-| | | |
-| | | |
-| | | |
+| *Toreh* | *2.1.2* | *Framework utama untuk membangun arsitektur tensor Lightweight CNN dan lapisan Temporal Attention.* |
+| *Torchvision* | *0.16.2* | *Memanfaatkan modul utilitas pengolahan sekuensial tensor dasar.* |
+| *Pandas* | *2.1.4* | *Prapemrosesan data, penyaringan baris, dan penanganan ketidakseimbangan kelas log CICIDS2017.* |
+| *Scikit-learn* | *1.3.2* | *Melakukan stratified train-test split serta kalkulasi metrik F1-score kelas minoritas.* |
+| *Numpy* | *1.26.2* | *Manipulasi array matriks konfusi dan penguncian acak tingkat dasar (vectorized calculations).* |
 
 ---
 
@@ -135,9 +135,9 @@ Rancang tes repeatability sederhana: jalankan kode yang sama 3× di environment 
 
 | Run | Seed | Metrik Utama | Hasil Sama? |
 |-----|------|-------------|-------------|
-| 1 | *Contoh: 42* | *Contoh: Accuracy* | — |
-| 2 | | | [ ] Ya / [ ] Tidak |
-| 3 | | | [ ] Ya / [ ] Tidak |
+| 1 | *42* | *Inference Latency & F1-Score Minoritas* | — |
+| 2 | *42* | *Inference Latency & F1-Score Minoritas* | [v] Ya / [ ] Tidak |
+| 3 | *42* | *Inference Latency & F1-Score Minoritas* | [v] Ya / [ ] Tidak |
 
 **Jika hasil berbeda, kemungkinan penyebab:**
 
@@ -150,10 +150,10 @@ Rancang tes repeatability sederhana: jalankan kode yang sama 3× di environment 
 ___________________________________________________
 
 **Checklist kontrol yang sudah diterapkan:**
-- [ ] Random seed di-set di semua level
-- [ ] Tidak ada background process yang mengganggu
-- [ ] Cache dibersihkan antar-run
-- [ ] Config file yang sama untuk semua run
+- [v] Random seed di-set di semua level
+- [v] Tidak ada background process yang mengganggu
+- [v] Cache dibersihkan antar-run
+- [v] Config file yang sama untuk semua run
 
 ---
 
@@ -162,25 +162,58 @@ ___________________________________________________
 Tulis README minimum untuk eksperimen Anda (6 komponen wajib).
 
 ```
-# Judul Eksperimen: ____________________
+# Judul Eksperimen: Lightweight CNN dengan Temporal Attention Mechanism untuk Deteksi Anomali Jaringan Kritis pada Dataset CICIDS2017
 
 ## 1. Environment
-> (Salin spesifikasi dari Latihan 1)
+> CPU: Intel Core i5-12400F (6 Cores)
+> RAM: 16 GB DDR4
+> GPU: NVIDIA RTX 3050 8GB
+> OS: Ubuntu 22.04 LTS (via WSL2)
+> Runtime: Python 3.10.12, PyTorch 2.1.2, CUDA 11.8
 
 ## 2. Installation
-> (Langkah instalasi, misal: "pip install -r requirements.txt")
-
+> ```bash
+# Klon repositori eksperimen
+git clone [https://github.com/saputrazaki608/lightweight-cnn-attention.git](https://github.com/saputrazaki608/lightweight-cnn-attention.git)
+cd lightweight-cnn-attention
+# Buat virtual environment dan install dependencies
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ## 3. Data
-> (Deskripsi data: sumber, format, ukuran)
+> Dataset Publik CICIDS2017 (Koleksi berkas CSV lalu lintas jaringan).
+> Format: Berkas terkompresi .csv hasil ekstraksi fitur log PCAP.
+> Ukuran: Subset data bersih berukuran sekitar ~1.2 GB setelah pembersihan baris bernilai NaN atau Infinite.
 
 ## 4. Execution
-> (Command untuk menjalankan eksperimen)
+> # Menjalankan prapemrosesan data secara stratified
+python src/preprocess.py --data_path ./data/CICIDS2017.csv
+
+# Menjalankan pelatihan dan pengujian performa model
+python src/main.py --config config/hyperparams.json --run_benchmark true
 
 ## 5. Configuration
-> (File config yang digunakan + parameter kunci)
+> Eksperimen dikendalikan melalui file kontrol config/hyperparams.json dengan parameter kunci:
+
+model_type : lightweight_cnn_attention
+
+batch_size : 256
+
+learning_rate : 0.001
+
+random_seed : 42
+
+num_epochs : 50
 
 ## 6. Expected Output
-> (Contoh output yang diharapkan + format)
+> {
+  "experiment_status": "SUCCESS",
+  "metrics": {
+    "average_inference_latency_ms": 1.84,
+    "minority_class_f1_score": 0.8725,
+    "total_parameters": 45120
+  }
+}
 ```
 
 ---
@@ -188,7 +221,7 @@ Tulis README minimum untuk eksperimen Anda (6 komponen wajib).
 ## Refleksi
 
 > Apakah eksperimen Anda saat ini bisa direproduksi oleh orang lain tanpa bantuan Anda? Komponen apa yang masih hilang?
-
-**Level saat ini:** [ ] Repeatability / [ ] Reproducibility / [ ] Belum keduanya
+**Apakah eksperimen saat ini bisa direproduksi?** Secara komputasi alur logika data dan bobot model (*F1-score*), eksperimen ini sudah bisa direproduksi secara presisi oleh orang lain karena penentuan berkas dan parameter benih acak telah dikunci rapat di file konfigurasi. Namun, untuk metrik fisik *inference latency*, reproduksibilitas mutlak agak sulit dicapai jika orang lain menggunakan spesifikasi komputer yang berbeda kelas.
+**Level saat ini:** [v] Repeatability / [ ] Reproducibility / [ ] Belum keduanya
 **Komponen yang belum terdokumentasi:**
-> ___________________________________________________
+> Petunjuk pembuatan berkas kontainerisasi lingkungan (*Docker Image* atau berkas `Dockerfile` dan `docker-compose.yml`) belum disediakan secara formal. Dokumentasi tersebut sangat dibutuhkan agar orang lain dapat melakukan replikasi lingkungan sistem operasi dan *library build* secara instan tanpa perlu melakukan instalasi manual satu per satu di komputer lokal mereka.
