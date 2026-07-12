@@ -93,23 +93,23 @@ Pilih satu paper riset di bidang TI yang mengklaim "metode X meningkatkan perfor
 > **Contoh domain TI:** "Deteksi anomali lalu-lintas jaringan menggunakan CNN — akurasi meningkat 94% vs baseline SVM 87%." Distorsi potensial: apakah dataset normal/anomali seimbang? Apakah hanya diuji pada satu vendor traffic?
 
 **Paper yang dipilih:**
-> Judul: _______________________________________________
-> Penulis (Tahun): ______________________________________
-> Sumber/Link DOI: _____________________________________
+> Judul: Deep Learning for Network Intrusion Detection: An Efficient CNN Model for Anomaly Detection
+> Penulis (Tahun): M. A. Khan, mdan kawan-kawan (2021)
+> Sumber/Link DOI: https://doi.org/10.1109/ACCESS.2021.3050412 (IEEE Xplore / IEEE Access)
 
 | Tahap | Apa yang Dilakukan | Potensi Distorsi |
 |-------|-------------------|-----------------|
-| Reality → Data | *Contoh: Kumpulkan log server 30 hari* | *Contoh: Hanya ambil jam sibuk* |
-| Data → Processing | | |
-| Processing → Analysis | | |
-| Analysis → Inference | | |
-| Inference → Knowledge | | |
+| Reality → Data |*Menggunakan dataset publik standar industri seperti NSL-KDD atau CICIDS2017 untuk mensimulasikan lalu lintas jaringan realitas.*| *Distorsi Representasi: Dataset publik sering kali bersifat usang (pola serangan lama) dan tidak sepenuhnya mencerminkan lalu lintas jaringan dunia nyata yang dinamis serta terus berubah.*|
+| Data → Processing |*Melakukan min-max normalization, menangani missing values, dan menggunakan teknik One-Hot Encoding untuk mengubah fitur kategorikal menjadi numerik.*|*Distorsi Informasi: Prapemrosesan yang terlalu agresif (seperti membuang outlier ekstrem secara sepihak) dapat menghilangkan karakteristik krusial dari serangan siber tipe baru (zero-day attack).*|
+| Processing → Analysis |*Melatih model Convolutional Neural Network (CNN) dan membandingkan akurasinya terhadap algoritma tradisional seperti Support Vector Machine (SVM) dan Random Forest.*|*Distorsi Evaluasi: Perbandingan bisa pincang (biased) jika arsitektur SVM baseline tidak dioptimalkan parameter hper-nya (hyperparameter tuning) secara adil, sehingga membuat model CNN terkesan jauh lebih unggul.*|
+| Analysis → Inference |*Mengklaim keberhasilan model karena mencapai akurasi 98,5% pada data pengujian (test set).*|*Distorsi Generalisasi (Overfitting): Akurasi yang sangat tinggi kerap terjadi karena data leakage (kebocoran data) atau karakteristik data training dan testing yang terlalu mirip, membuat model gagal ketika diuji pada vendor traffic yang berbeda.*|
+| Inference → Knowledge |*Menarik kesimpulan bahwa metode CNN ini siap diimplementasikan sebagai sistem pertahanan utama pada Intrusion Detection System (IDS) industri.*|*Distorsi Kontekstual: Mengabaikan faktor real-time throughput dan latensi komputasi deep learning yang tinggi, yang pada realitasnya bisa membuat traffic jaringan menjadi bottleneck.*|
 
-**Distorsi paling besar di tahap:** ________________________
+**Distorsi paling besar di tahap:** *Analysis --> Inference*
 
 **Dua distorsi spesifik yang teridentifikasi:**
-1. ___________________________________________________
-2. ___________________________________________________
+1. *Ketidakseimbangan Kelas (Class Imbalance Bias): Klaim akurasi tinggi (98%) sering kali mengecoh jika jumlah data normal jauh mendominasi data serangan (imbalanced dataset), sehingga model yang mendeteksi semua data sebagai 'normal' pun akan tetap mendapat skor akurasi tinggi.*
+2. *Keterbatasan Pengujian Vendor (Environment Lock-in): Model hanya diuji pada satu repositori dataset statis, sehingga keandalannya di lingkungan operasional infrastruktur jaringan yang sesungguhnya belum terbukti secara empiris.*
 
 ---
 
@@ -119,36 +119,37 @@ Skenario: Seorang peneliti menemukan bahwa jika 3 data point outlier dihapus, ha
 
 | Perspektif | Analisis |
 |------------|---------|
-| Kejujuran ilmiah | *Contoh: Laporkan kedua versi (dengan dan tanpa outlier)* |
-| Transparansi | |
-| Peer review | |
+| Kejujuran ilmiah | *Peneliti wajib melaporkan performa model dalam dua kondisi tersebut. Menyembunyikan outlier hanya agar model deep learning terlihat "superior" atau "paling akurat" merupakan bentuk kecurangan ilmiah (falsification). Dalam ranah siber, 3 data outlier itu bisa jadi adalah serangan krusial yang gagal dideteksi.* |
+| Transparansi |*Peneliti harus secara eksplisit menjelaskan kriteria pengidentifikasian outlier tersebut pada bab metodologi. Harus disebutkan metode statistik yang digunakan (misalnya Isolation Forest atau Z-score) serta menyediakan akses ke source code prapemrosesan data (misalnya file Jupyter Notebook atau skrip Python) di repositori publik seperti GitHub agar alur eliminasi data dapat diaudit.*|
+| Peer review |*Melalui transparansi data, para mitra bestari (reviewers) dapat mengevaluasi apakah penghapusan 3 data tersebut valid secara teknis keamanan jaringan atau sekadar manipulasi (p-hacking). Hal ini memastikan bahwa kesimpulan yang ditarik oleh komunitas ilmiah benar-benar objektif dan tidak menyesatkan peneliti lain yang ingin mereplikasi model tersebut.*|
 
 **Keputusan akhir dan justifikasi:**
-> ___________________________________________________
-
+> Keputusan Akhir:
+*Tetap mempertahankan ketiga data outlier tersebut di dalam dataset utama dan melaporkan performa riil model apa adanya. Jika outlier terpaksa harus dihapus, penghapusan tersebut wajib didasari oleh alasan kesalahan teknis yang klir (seperti corrupted packet log atau kegagalan sistem pencatatan sensor), dan kedua hasil eksperimen (sebelum dan sesudah penghapusan) harus ditampilkan berdampingan di dalam paper.*
+> Justifikasi:
+*Berdasarkan pedoman etika publikasi ilmiah internasional dari COPE (Committee on Publication Ethics) serta standar pelaporan eksperimen IEEE, manipulasi sampel data demi memuluskan klaim performa metode baru adalah pelanggaran serius terhadap integritas akademik. Terlebih dalam domain keamanan siber, mengabaikan data pencilan secara sengaja sangat berbahaya karena outlier dalam lalu lintas jaringan sering kali merepresentasikan pola serangan baru (zero-day attacks) atau anomali kritis yang justru merupakan target utama dari sistem pertahanan jaringan itu sendiri.*
 ---
 
 ## Latihan 3 — Posisi Paradigma
 
-**Topik riset:** ________________________________________
+**Topik riset:** *Deteksi Anomali Lalu Lintas Jaringan Menggunakan Deep Learning (CNN) untuk Mitigasi Serangan Siber*
 
 > **Skala 1–5:** 1 = tidak sesuai sama sekali dengan topik ini, 5 = sangat sesuai dan dominan digunakan pada riset bertopik serupa.
 
 | Kriteria | Positivis | Interpretivis | Design Science |
 |----------|-----------|---------------|----------------|
-| Kesesuaian dengan topik (1–5) | *Contoh: 4 — topik kuantitatif, cocok uji hipotesis* | *Contoh: 2 — topik tidak studi makna/konteks* | *Contoh: 5 — membangun artefak untuk uji klaim* |
-| Jenis data yang dikumpulkan | *Metrik numerik, log eksperimen* | *Wawancara, observasi kualitatif* | *Hasil uji artefak, komparasi kinerja* |
-| Limitasi paradigma | | | |
+| Kesesuaian dengan topik (1–5) | *4 — Sangat sesuai karena riset memerlukan pengujian hipotesis objektif dan komparasi statistik performa antar-algoritma.* | *1 — Tidak sesuai sama sekali karena fokus riset ini bukan menggali makna sosial, pengalaman kultural, atau konteks subjektif manusia.* | *5 — Sangat sesuai dan dominan karena riset komputer ini bertujuan utama membangun sebuah artefak teknologi baru (model arsitektur CNN).* |
+| Jenis data yang dikumpulkan | *Metrik numerik kuantitatif seperti tingkat akurasi, Precision, Recall, F1-Score, False Alarm Rate, dan log waktu latensi eksperimen.* | *Rekaman wawancara atau transkrip persepsi tim Network Security Administrator mengenai ancaman siber.* | *Hasil pengujian fungsionalitas artefak, arsitektur layer CNN, serta tabel komparasi kinerja model usulan terhadap model baseline.* |
+| Limitasi paradigma |*Cenderung mereduksi masalah keamanan jaringan yang dinamis hanya ke dalam angka statis, serta mengabaikan aspek humanis di lapangan.*|*Hasil analisis bersifat lokal/spesifik dan tidak dapat digeneralisasikan untuk mendeteksi variasi serangan berskala global.*|*Evaluasi performa sering kali terbatas pada lingkungan laboratorium (controlled environment) dan belum menjamin skalabilitas saat diterapkan langsung pada jaringan industri nyata.*|
 
-**Paradigma yang dipilih:** _____________________________
-**Alasan:** ____________________________________________
-
+**Paradigma yang dipilih:** *Design Science Research (DSR) yang didukung oleh pendekatan Positivis.*
+**Alasan:** *Riset ini berfokus pada penyelesaian masalah praktis di dunia nyata keamanan siber dengan merancang dan menguji sebuah artefak komputasi baru (model CNN). Penilaian keberhasilan dari artefak tersebut kemudian diukur secara empiris dan terukur menggunakan pembuktian kuantitatif numerik (positivis) untuk menunjukkan keunggulannya secara valid.*
 ---
 
 ## Refleksi
 
 > Sebelum membaca materi ini, apakah pernah mempertanyakan klaim "95% akurat"? Setelah memahami rantai distorsi, pertanyaan apa yang sekarang akan diajukan saat membaca paper?
 
-**Jawaban:**
-> ___________________________________________________
-> ___________________________________________________
+**Jawaban:*Sebelumnya, klaim metrik performa tinggi seperti "95% akurat" sering kali diterima secara mentah-mentah sebagai bukti mutlak kesuksesan sebuah sistem. Namun, setelah memahami rantai distorsi, pertanyaan kritis yang kini wajib diajukan saat membaca paper deteksi anomali adalah:*
+> *Aspek Representasi Data: Apakah dataset yang digunakan untuk melatih model tersebut seimbang? Jika data serangan hanya berjumlah 5% dari total keseluruhan data jaringan, maka model yang menebak semua lalu lintas sebagai 'normal' secara keliru pun akan tetap menghasilkan klaim "Akurasi 95%".*
+> *Aspek Generalisasi Lingkungan: Apakah model tersebut diuji pada variasi traffic dari vendor/perangkat keras yang berbeda, atau performa tinggi itu hanya terjadi karena overfitting dan data leakage pada satu dataset spesifik saja?*
