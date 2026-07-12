@@ -102,15 +102,15 @@ Problem Statement (1 paragraf):
 
 Pilih satu topik di bidang TI yang diminati. Transformasikan melalui 5 tahap Problem Formation Model.
 
-**Topik awal:** ________________________________________
+**Topik awal:** *Deteksi Anomali Lalu Lintas Jaringan Berbasis Deep Learning untuk Keamanan Siber*
 
 | Tahap | Hasil |
 |-------|-------|
-| Reality | *Contoh: Aplikasi e-commerce sering ditinggalkan saat checkout* |
-| Observed Issue (Symptom) | *Contoh: Bounce rate checkout 68%* |
-| Diagnosed Problem (Root Cause) | |
-| Researchable Problem | |
-| Measurable Variable | |
+| Reality | *Infrastruktur jaringan komputer terus-menerus menghadapi ancaman serangan siber yang menyusup di sela-sela jutaan paket data aktivitas normal sehari-hari.* |
+| Observed Issue (Symptom) | *Terjadi peningkatan serangan siber yang lolos dari deteksi (High False Negative Rate) dan tingginya alarm palsu (High False Alarm Rate) saat menggunakan sistem keamanan jaringan (Intrusion Detection System) tradisional.* |
+| Diagnosed Problem (Root Cause) | *Metode deteksi tradisional berbasis aturan (rule-based) bersifat statis dan tidak mampu beradaptasi untuk mengenali pola variasi serangan siber modern yang sengaja disamarkan agar menyerupai paket data normal.* |
+| Researchable Problem | *Bagaimana merancang arsitektur model klasifikasi berbasis Convolutional Neural Network (CNN) yang mampu mengeksplorasi fitur-fitur spasial dari log paket jaringan secara otomatis tanpa bergantung pada signature serangan yang sudah usang?* |
+| Measurable Variable | *Variabel Bebas (Independent): Variasi arsitektur arsitektur CNN (jumlah layer, ukuran filter) dan metode prapemrosesan data. Variabel Terikat (Dependent): Tingkat Akurasi, Precision, Recall, F1-Score, dan False Alarm Rate (FAR) model.* |
 
 **Apakah terjebak solution-first thinking?** [ ] Ya / [ ] Tidak
 > Jika ya, kembali ke tahap mana? ________________________
@@ -123,14 +123,14 @@ Gambarkan konteks sistem dari masalah riset di Latihan 1.
 
 | Komponen | Deskripsi |
 |----------|----------|
-| Input | *Contoh: Request HTTP dari browser pengguna* |
-| Process | |
-| Output | |
-| Outcome | |
-| Constraints | |
-| Stakeholders | |
+| Input | *Aliran paket data jaringan mentah (raw network traffic/pcap logs) atau fitur-fitur dataset statistik lalu lintas jaringan (seperti durasi, protokol, jumlah bytes).* |
+| Process | *Prapemrosesan data (normalization & feature mapping), ekstraksi fitur spasial secara otomatis oleh lapisan konvolusi model CNN yang telah diefisiensikan, dan klasifikasi kelas data.* |
+| Output | *Label prediksi klasifikasi untuk setiap paket data atau koneksi yang masuk, yaitu apakah berstatus Normal atau Anomali/Serangan (beserta skor probabilitasnya).* |
+| Outcome | *Terwujudnya sistem deteksi intrusi (IDS) yang responsif, penurunan tingkat kelolosan serangan (False Negative), serta berkurangnya beban komputasi (CPU/RAM overhead) pada gerbang jaringan.* |
+| Constraints | *Keterbatasan spesifikasi perangkat keras (hardware resource constraints pada edge gateway), keharusan memproses data dengan latensi sangat rendah (real-time processing limit), dan ketersediaan dataset latih yang seimbang.* |
+| Stakeholders | *Network Security Administrator, tim Cyber Security Incident Response, peneliti bidang keamanan siber, dan penyedia infrastruktur jaringan operasional perusahaan.* |
 
-**Komponen mana yang paling relevan dengan masalah riset?** _______________
+**Komponen mana yang paling relevan dengan masalah riset?** *Process dan Constraints*
 
 ---
 
@@ -140,17 +140,16 @@ Evaluasi problem statement yang sudah dibuat menggunakan 5 kriteria.
 
 | Kriteria | Skor (1-5) | Justifikasi |
 |----------|-----------|-------------|
-| Clarity | *Contoh: 4 — cukup jelas tapi perlu spesifikasi dataset* | |
-| Measurability | | |
-| Relevance | | |
-| Testability | | |
-| Impact | | |
+| Clarity | *4* | *Rumusan masalah sudah jelas fokus pada aspek efisiensi komputasi model CNN, namun perlu penyebutan domain operasional target secara eksplisit (misal: perangkat edge gateway).* |
+| Measurability | *5* | *Sangat terukur karena keberhasilan riset dievaluasi langsung menggunakan metrik kuantitatif baku seperti inference latency (milidetik), jumlah parameter, serta nilai F1-score.* |
+| Relevance | *5* | *Sangat relevan dengan tantangan nyata di bidang TI, di mana model deep learning berskala besar sering kali mengalami bottleneck saat harus memproses lalu lintas data jaringan yang padat secara real-time.* |
+| Testability | *5* | *Sangat bisa diuji secara empiris melalui eksperimen komparasi di laboratorium dengan membandingkan performa model CNN usulan terhadap arsitektur CNN baseline.* |
+| Impact | *4* | *Berdampak besar bagi penguatan infrastruktur keamanan siber industri karena memungkinkan penerapan IDS berbasis AI yang hemat daya, cepat, dan murah secara operasional.* |
 
-**Skor total:** _____ / 25
+**Skor total:** 23 / 25
 
 **Problem statement versi final (1 paragraf):**
-> ___________________________________________________
-> ___________________________________________________
+> Penerapan model Deep Learning seperti Convolutional Neural Network (CNN) untuk sistem deteksi intrusi jaringan (Intrusion Detection System) terbukti mampu memberikan akurasi tinggi, namun struktur arsitekturnya yang kompleks menimbulkan masalah tingginya latensi komputasi (inference latency) dan konsumsi sumber daya memori yang besar. Karakteristik ini membuatnya tidak efisien dan sulit diimplementasikan secara real-time pada perangkat edge gateway jaringan dengan kapasitas komputasi terbatas. Oleh karena itu, penelitian ini dirancang untuk mengatasi bottleneck tersebut dengan merancang arsitektur model CNN yang ringan (lightweight) guna mereduksi kompleksitas komputasi dan waktu eksekusi deteksi tanpa mengorbankan keandalan tingkat akurasi (F1-score) dalam memitigasi serangan anomali jaringan.
 
 ---
 
@@ -159,5 +158,8 @@ Evaluasi problem statement yang sudah dibuat menggunakan 5 kriteria.
 > Bandingkan "masalah" yang biasa ditemui saat coding (bug, error) dengan masalah riset. Apa perbedaan fundamental dalam cara mendefinisikan dan mendekati keduanya?
 
 **Jawaban:**
-> ___________________________________________________
-> ___________________________________________________
+> Perbedaan fundamental antara "masalah saat coding" (bug/error) dengan "masalah riset" terletak pada sifat solusi dan tujuannya:
+
+Masalah Coding (Bug/Error): Bersifat deterministik dan teknis operasional. Solusinya sudah pasti ada (misalnya memperbaiki kesalahan sintaksis, logic error, atau konfigurasi) dan bertujuan agar program berjalan sesuai spesifikasi rancangan yang sudah diketahui sebelumnya. Cara mendekatinya adalah dengan melakukan debugging lokal menggunakan stack trace atau log error.
+
+Masalah Riset: Bersifat terbuka (open-ended problem), belum memiliki solusi tunggal yang pasti, dan berakar pada kesenjangan pengetahuan (knowledge gap) atau batasan performa sistem yang ada. Cara mendekatinya membutuhkan metode ilmiah yang sistematis, dimulai dari observasi gejala di dunia nyata, tinjauan literatur ilmiah untuk memetakan solusi yang sudah ada, hingga pengujian hipotesis baru secara empiris guna menghasilkan pengetahuan baru (new knowledge) atau artefak yang dioptimalkan.
