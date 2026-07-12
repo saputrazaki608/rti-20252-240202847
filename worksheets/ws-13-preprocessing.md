@@ -103,14 +103,14 @@ Periksa dataset Anda (atau dataset contoh) dan dokumentasikan masalah yang ditem
 
 | Masalah | Jumlah Kasus | Penanganan | Justifikasi |
 |---------|-------------|------------|-------------|
-| *Contoh: Missing di kolom "label"* | *12 dari 500 (2.4%)* | *Listwise deletion* | *< 5%, distribusi random (MCAR)* |
-| | | | |
-| | | | |
-| | | | |
+| *Nilai kosong/tak terdefinisi pada fitur numerik (Flow Bytes/s, Flow Packets/s)* | *2.867 baris* | *Listwise deletion (Hapus baris)* | *Proporsi kasus < 0.1% dari total dataset global, distribusi acak, dan pengisian nilai (imputation) berisiko merusak integritas data deteksi anomali.* |
+| *Data duplikat (redundant log packets)* | *14.302 baris* | *Drop duplicates* | *Menghindari bias overfitting atau pembobotan berlebih pada pola serangan jaringan yang identik dalam satu sesi log.* |
+| *Nilai ekstrem tidak valid (Infinite values)* | *1.124 baris* | *Listwise deletion (Hapus baris)* | *Listwise deletion (Hapus baris)* |
 
-**Jumlah data sebelum cleaning:** ____
-**Jumlah data setelah cleaning:** ____
-**Persentase data yang hilang/berubah:** ____%
+
+**Jumlah data sebelum cleaning:** 2.830.743 baris
+**Jumlah data setelah cleaning:** 2.812.450 baris
+**Persentase data yang hilang/berubah:** 0.65%
 
 ---
 
@@ -120,16 +120,17 @@ Tentukan apakah data Anda perlu normalisasi, dan jika ya, metode apa yang tepat.
 
 | Variabel | Range Asli | Distribusi | Outlier? | Metode Normalisasi | Alasan |
 |----------|-----------|-----------|----------|-------------------|--------|
-| *Contoh: response_time* | *0.1 – 45.2s* | *Right-skewed* | *Ya (45.2s)* | *Robust scaling* | *Ada outlier, perlu robust* || *Contoh: accuracy_score* | *0.72 – 0.95* | *Normal, narrow* | *Tidak* | *Tidak perlu* | *Sudah dalam [0,1], metode berbasis distance tidak digunakan* || | | | | | |
-| | | | | | |
+| *Flow Duration* | *0 – 120.000.000* | *Right-skewed* | *Ya* | *Robust scaling* | *Rentang sangat lebar dengan pencilan masif pada durasi serangan.* |
+| *Total Fwd Packets* | *1 – 200.000* | *Heavy-tailed* | *Ya* | *Robust Scaling* | *Distribusi tidak normal akibat lonjakan paket serangan DDoS.* |
+| *Destination Port* | *0 – 65.353* | *Multi-modal* | *Tidak* | *Min-Max Scaling* | *Range nilai port sudah pasti dan memiliki batas atas yang absolut.* |
 
-**Apakah normalisasi diperlukan?** [ ] Ya / [ ] Tidak
-**Justifikasi:**
+**Apakah normalisasi diperlukan?** [v] Ya / [ ] Tidak
+**Justifikasi:** Fitur lalu lintas jaringan memiliki rentang nilai (scale) yang sangat timpang antar kolom (misalnya perbandingan durasi jutaan mikrodetik vs jumlah paket satuan). Tanpa normalisasi, fitur berangka besar akan mendominasi perhitungan gradien pada Lightweight CNN.
 > ___________________________________________________
 
 **Leakage check:**
-- [ ] Parameter dihitung dari training set saja
-- [ ] Normalisasi diterapkan setelah train-test split
+- [v] Parameter dihitung dari training set saja (Nilai median dan IQR untuk Robust Scaling murni diambil dari subset data training)
+- [v] Normalisasi diterapkan setelah train-test split (Menghindari kebocoran informasi distribusi data uji ke model)
 
 ---
 
@@ -140,16 +141,16 @@ Buat ringkasan preprocessing lengkap — dokumentasi yang cukup bagi orang lain 
 ```
 PREPROCESSING SUMMARY
 
-1. Dataset: ____________________
-2. Data awal: ____ records, ____ features
+1. Dataset: CICIDS2017 Network Traffic
+2. Data awal: 2.830.743 records,78 features
 3. Cleaning:
-   - Missing values: ____ kasus, metode: ____
-   - Duplikat: ____ kasus, tindakan: ____
-   - Error: ____ kasus, tindakan: ____
-4. Transformation: ____________________
-5. Normalisasi: ____ (metode), parameter dari ____
-6. Data akhir: ____ records, ____ features
-7. Leakage check: [ ] Lulus / [ ] Ada masalah
+   - Missing values: 2.867 kasus, metode: Listwise deletion
+   - Duplikat: 14.302 kasus, tindakan: Drop duplicates 
+   - Error: 1.124 kasus, tindakan: Listwise deletion
+4. Transformation: Label encoding untuk fitur target kategori serangan (Benign, DDoS, PortScan, dll.)
+5. Normalisasi: Robust Scaling (fitur berbasis durasi/volume) dan Min-Max (fitur berbasis port), parameter dari Training Set
+6. Data akhir: 2.812.450 records, 78 features
+7. Leakage check: [v] Lulus / [ ] Ada masalah
 ```
 
 ---
@@ -158,5 +159,7 @@ PREPROCESSING SUMMARY
 
 > Apakah Anda pernah melakukan normalisasi "karena biasa dilakukan" tanpa mempertimbangkan apakah benar-benar diperlukan? Apa risiko over-preprocessing?
 
-> ___________________________________________________
-> ___________________________________________________
+> Apakah Anda pernah melakukan normalisasi "karena biasa dilakukan" tanpa mempertimbangkan apakah benar-benar diperlukan?
+Ya, di awal belajar kecerdasan buatan, saya sering langsung menerapkan StandardScaler secara buta pada seluruh kolom tanpa melihat visualisasi distribusi atau memeriksa keberadaan pencilan (outliers) terlebih dahulu.
+> Apa risiko over-preprocessing?
+Risiko terbesar dari over-preprocessing adalah hilangnya informasi esensial dan karakteristik asli data. Jika kita terlalu agresif memotong atau mentransformasikan data (misalnya membuang semua pencilan atau memaksakan distribusi normal pada data yang secara alami bersifat multi-modal), kita justru bisa menghilangkan sinyal anomali kritis dari serangan siber yang strukturnya memang menyerupai pencilan ekstrim. Selain itu, prapemrosesan berlebih menambah kompleksitas komputasi saat implementasi inferensi nyata (deployment), yang bertentangan dengan prinsip efisiensi arsitektur Lightweight CNN.
