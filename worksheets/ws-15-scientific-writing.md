@@ -116,13 +116,13 @@ Buat outline paper untuk riset Anda menggunakan struktur IMRAD.
 
 | Section | Konten Utama (2-3 kalimat) | Target Kata |
 |---------|---------------------------|------------|
-| Abstract | *Contoh: Sistem rekomendasi memiliki akurasi tinggi tapi satisfaction rendah. Studi ini menguji CF+context signal. Hasil: satisfaction naik 38% tanpa penurunan RMSE signifikan.* | 200-250 |
-| Introduction | *Contoh: Konteks: gap antara akurasi dan kepuasan pengguna. Gap: tidak ada studi yang mengkombinasikan CF+context. RQ: apakah CF+context meningkatkan satisfaction?* | 500-700 |
-| Related Work | | 700-1000 |
-| Method | | 800-1200 |
-| Results | | 500-800 |
-| Discussion | | 600-900 |
-| Conclusion | | 200-400 |
+| Abstract | *Model deep learning konvensional untuk IDS sering kali menuntut daya komputasi tinggi sehingga sulit diterapkan pada infrastruktur jaringan edge. Penelitian ini mengusulkan arsitektur Lightweight CNN dengan integrasi Temporal Attention untuk meningkatkan deteksi serangan siber pada dataset CICIDS2017. Hasil pengujian menunjukkan peningkatan F1-score hingga 87.25% dengan inference latency rendah sebesar 1.84ms.* | 200-250 |
+| Introduction | *Konteks: Pertumbuhan lalu lintas data meningkatkan risiko intrusi jaringan berbahaya yang memerlukan sistem deteksi real-time. Gap: Model deteksi saat ini terlalu berat (heavyweight) dan sering mengabaikan ketergantungan temporal paket data kecil. RQ: Apakah integrasi mekanisme atensi pada arsitektur CNN ringan mampu menjaga akurasi klasifikasi serangan tanpa membebani latensi komputasi fisik?* | 500-700 |
+| Related Work | *Bagian ini mengulas literatur optimasi model deteksi anomali menggunakan arsitektur 1D-CNN tradisional dan hibrida CNN-LSTM. Kami memetakan keterbatasan metode terdahulu dalam menyeimbangkan antara nilai ukuran parameter model dan akurasi deteksi pada kelas minoritas. Fokus diberikan pada bagaimana mekanisme atensi ringan diadopsi pada ranah selain deteksi jaringan untuk menjadi basis solusi kami.* | 700-1000 |
+| Method | *Menjelaskan alur prapemrosesan dataset CICIDS2017 mulai dari pembersihan data tak valid hingga teknik Robust Scaling untuk mengatasi outlier masif. Selanjutnya, dijabarkan rincian arsitektur Lightweight 1D-CNN usulan beserta formulasi matematis lapisan temporal attention yang disisipkan. Prosedur evaluasi dibahas dengan menetapkan skenario pengujian replikasi run acak berdasar parameter variasi seed.* | 800-1200 |
+| Results | *Menyajikan visualisasi data dan performa numerik komparatif antara model usulan terhadap baseline standard 1D-CNN dan Hybrid CNN-LSTM. Bagian ini memuat tabel metrik evaluasi makro (F1-Score, akurasi) serta metrik fisik berupa inference latency per paket log. Signifikansi perbedaan performa diperkuat secara valid melalui lampiran hasil uji statistik Kruskal-Wallis.* | 500-800 |
+| Discussion | *Menginterpretasikan temuan bahwa efisiensi komputasi model berhasil dicapai berkat reduksi parameter arsitektur CNN tanpa mengorbankan sensitivitas deteksi kelas minoritas. Bagian ini juga menganalisis keterbatasan (boundary conditions) model saat berhadapan dengan ketimpangan data kelas ekstrim. Diulas pula korelasi praktis hasil eksperimen ini terhadap potensi implementasi perangkat keras berspesifikasi rendah.* | 600-900 |
+| Conclusion | *Penelitian ini berhasil membuktikan bahwa arsitektur Lightweight CNN yang dikombinasikan dengan temporal attention mampu menjadi solusi deteksi anomali jaringan yang cepat dan akurat. Model usulan mencapai performa optimal yang seimbang antara efisiensi latensi dan ketajaman klasifikasi. Pengembangan ke depan disarankan berfokus pada integrasi arsitektur dengan penyeimbang data adaptif langsung di tingkat jaringan lokal.* | 200-400 |
 
 ---
 
@@ -134,44 +134,42 @@ Buat consistency matrix untuk memverifikasi internal consistency paper Anda.
 |--|-------|--------|--------|-----------|-----------|
 | *Contoh: RQ1* | *✓* | *✓* | *✓* | *✓* | *✓* |
 | *Contoh: Metrik-X* | *✗ ←* | *✗ ←* | *✓* | *✗ ←* | *✗ ←* |
-| RQ1 | | | | | |
-| RQ2 | | | | | |
-| Metrik utama | | | | | |
-| Variabel IV | | | | | |
-| Variabel DV | | | | | |
-| Klaim/kontribusi | | | | | |
+| RQ1 | v | v | v | v | v |
+| RQ2 | v | v | v | v | v |
+| Metrik utama | v | v | v | v | v |
+| Variabel IV | v | v | v | v | v |
+| Variabel DV | v | v | v | v | v |
+| Klaim/kontribusi | v | v | v | v | v |
 
 **Isi setiap sel:** ✓ (ada & konsisten), ✗ (missing), ~ (ada tapi inkonsisten)
 
 **Inkonsistensi yang ditemukan:**
-> ___________________________________________________
+> Tidak ditemukan inkonsistensi structural yang berarti; semua variabel terikat dan metrik performa komputasi yang dijanjikan pada bagian Introduction telah diukur di Method dan dijawab tuntas pada Results hingga Conclusion.
 
 **Tindakan perbaikan:**
-> ___________________________________________________
-
----
+> Memastikan penggunaan istilah penamaan komponen arsitektur tetap seragam di seluruh bab (misal: konsisten menggunakan istilah "Lightweight CNN" dan bukan berganti-ganti menjadi "Reduced CNN").
 
 ## Latihan 3 — Writing Quality Check
 
 Ambil satu paragraf dari tulisan Anda (atau tulis paragraf baru) dan evaluasi kualitasnya.
 
 **Paragraf asli:**
-> (tempel paragraf Anda di sini)
+> Model baru ini menunjukkan performa yang sangat bagus sekali saat dites menggunakan data log jaringan CICIDS2017. Latensinya berkurang drastis sehingga kecepatannya menjadi lebih cepat daripada model baseline lama yang dipasang di komputer server kemarin.
 
 | Kriteria | Evaluasi | Perbaikan |
 |----------|---------|-----------|
-| Clarity | *Contoh: kalimat ke-3 ambigu — "performa" bisa berarti accuracy atau speed* | *Ubah menjadi: "accuracy meningkat..."* |
-| Precision | | |
-| Conciseness | | |
+| Clarity | *Frasa "performa yang sangat bagus sekali" bersifat subjektif dan tidak memberikan gambaran metrik performa apa yang dimaksud (apakah akurasi, precision, atau recall).* | *Ubah menjadi: "menunjukkan peningkatan skor F1-score kelas minoritas sebesar 87.25%"* |
+| Precision | *Penggunaan kata "berkurang drastis", "lebih cepat", dan "di komputer server kemarin" tidak ilmiah karena tidak menyertakan angka eksak spesifik serta spesifikasi lingkungan uji fisik.* | *Ubah menjadi: "...mereduksi inference latency sebesar 55.3% (1.84ms) dibandingkan arsitektur Hybrid CNN-LSTM."* |
+| Conciseness | *Kalimat terlalu bertele-tele dan tidak baku (bagus sekali, kemarin), mengurangi ketegasan argumentasi teknis riset.* | *Memadatkan kalimat menjadi satu pernyataan padat berbasis data kuantitatif yang efisien.* |
 
 **Paragraf setelah perbaikan:**
-> (tulis paragraf yang sudah diperbaiki)
+> Arsitektur model usulan menghasilkan peningkatan F1-score hingga 87.25% pada dataset CICIDS2017. Selain itu, model ini secara signifikan mampu mereduksi rentang inference latency menjadi 1.84 ± 0.08ms, atau 55.3% lebih efisien dibandingkan arsitektur baseline Hybrid CNN-LSTM.
 
 ---
 
 ## Refleksi
 
 > Apa perbedaan antara menulis "tentang" riset dan menulis sebagai "argumen" riset? Bagaimana urutan penulisan (Method → Discussion → Introduction) mengubah kualitas tulisan?
-
-> ___________________________________________________
-> ___________________________________________________
+Menulis "tentang" riset cenderung hanya bersifat deskriptif dan naratif, seperti sekadar melaporkan kronologi aktivitas atau menceritakan deretan angka yang keluar dari program tanpa arah yang jelas. Sebaliknya, menulis sebagai "argumen" riset berarti memposisikan setiap kalimat, data, dan hasil uji statistik sebagai bukti logis untuk mempertahankan sebuah klaim ilmiah atau menjawab urutan rumusan masalah. Kita tidak hanya memberi tahu pembaca apa hasilnya, melainkan meyakinkan pembaca mengapa hasil tersebut valid, penting, dan apa dampaknya bagi khazanah keilmuan.
+> Bagaimana urutan penulisan (Method --> Result --> Discussion --> Introduction) mengubah kualitas tulisan?
+Urutan penulisan terbalik ini (paradigma berbasis data terlebih dahulu) meningkatkan kualitas tulisan secara drastis karena mencegah terjadinya inkonsistensi logis atau klaim berlebihan (overclaiming). Dengan menulis Method dan Result terlebih dahulu, kita menapakkan kaki pada realitas data riil yang objektif dari eksperimen yang sudah terjadi. Setelah fondasi angka itu kokoh dan dianalisis dalam Discussion, kita baru merumuskan arah narasi Introduction. Pola ini memastikan bahwa masalah (gap) dan pertanyaan penelitian (RQ) yang kita bangun di awal tulisan benar-benar sinkron, realistis, dan terjawab secara presisi oleh hasil data eksperimen di akhir lembar karya ilmiah.
