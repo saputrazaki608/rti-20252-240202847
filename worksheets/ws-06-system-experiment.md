@@ -111,13 +111,12 @@ Gunakan RQ dan variabel dari WS-05. Petakan ke komponen sistem.
 
 | Variabel | Tipe | Komponen Sistem | Cara Manipulasi / Pengukuran |
 |----------|------|-----------------|---------------------------|
-| *Contoh: Jenis model* | *IV* | *Modul classifier (swap RF ↔ CNN)* | *Ganti config `model_type`* |
-| | DV | | |
-| | CV | | |
+| *Arsitektur Model* | *IV* | *Modul Klasifikasi (swap arsitektur jaringan).* | *Mengubah parameter string --model_type pada file konfigurasi (config.json) atau argumen CLI.* |
+| *Inference Latency* | DV | *Modul Evaluasi & Benchmark Performance.* | *Menghitung durasi waktu eksekusi fungsi model.forward() menggunakan fungsi torch.cuda.Event (skala milidetik).* |
+| *Lingkungan Pengujian* | CV | *Kontainerisasi Sistem (Docker Environment).* | *Membatasi alokasi core CPU dan memori melalui opsi runtime Docker agar tetap statis sepanjang eksperimen.* |
 
-**Apakah semua variabel bisa di-map?** [ ] Ya / [ ] Tidak
-> Jika tidak, komponen apa yang perlu ditambahkan? _________
-
+**Apakah semua variabel bisa di-map?** [v] Ya / [ ] Tidak
+> Jika tidak, komponen apa yang perlu ditambahkan? — (Semua variabel berhasil dipetakan ke dalam arsitektur perangkat lunak eksperimen).
 ---
 
 ## Latihan 2 — 4 Prinsip Desain
@@ -126,15 +125,14 @@ Evaluasi desain sistem terhadap 4 prinsip.
 
 | Prinsip | Status | Bukti / Penjelasan |
 |---------|--------|-------------------|
-| Traceability | *Contoh: ✅ — setiap modul punya label variabel* | |
-| Modularity | | |
-| Controllability | | |
-| Measurability | | |
+| Traceability | * ✅ Terpenuhi* | *Setiap metrik output (latency, F1-score) tersimpan dalam file JSON hasil eksperimen yang mencantumkan hash ID konfigurasi model pemicunya secara otomatis.* |
+| Modularity | * ✅ Terpenuhi* | *Blok arsitektur model dibuat terpisah (modul backbone_cnn.py, attention.py, dan classifier.py) sehingga struktur internalnya dapat dibongkar pasang dengan mudah.* |
+| Controllability | * ✅ Terpenuhi* | *Aliran eksperimen, penentuan hyperparameter, dan jenis model yang dieksekusi sepenuhnya dikendalikan via file konfigurasi terpusat tanpa menyentuh kode utama.* |
+| Measurability | * ✅ Terpenuhi* | *Kode dilengkapi modul pencatatan metrik khusus (logger script) yang mengambil langsung nilai performa komputasi dan akurasi di setiap akhir tahapan evaluasi.* |
 
-**Prinsip mana yang paling sulit dipenuhi?** _______________
+**Prinsip mana yang paling sulit dipenuhi?** **Controllability*
 **Strategi untuk mengatasinya:**
-> ___________________________________________________
-
+> Mengontrol kestabilan inference latency pada lingkungan sistem operasi modern cukup menantang karena adanya interferensi proses latar belakang (background OS noise). Strateginya adalah menjalankan pengujian tanpa antarmuka grafis (headless mode), mengisolasi inti CPU (CPU pinning), serta melakukan pengujian berulang sebanyak 30 kali untuk mengambil rata-rata performa (trimmed mean).
 ---
 
 ## Latihan 3 — Ablation Study Planning
@@ -146,21 +144,20 @@ Jika sistem memiliki 3 komponen utama, rencanakan ablation study.
 
 | Kondisi | Komponen A | Komponen B | Komponen C | Hasil yang Diharapkan |
 |---------|-----------|-----------|-----------|----------------------|
-| Full | *Contoh: ✅ CNN* | *Contoh: ✅ Temporal features* | *Contoh: ✅ Z-score norm* | *Baseline penuh* |
-| – A | ❌ (ganti RF) | ✅ | ✅ | |
-| – B | ✅ | ❌ (tanpa temporal) | ✅ | |
-| – C | ✅ | ✅ | ❌ (tanpa normalisasi) | |
+| Full | *✅ (Lightweight)* | *✅ (Attention)* | *✅ norm* | *Sistem usulan lengkap: Diharapkan memberikan latensi rendah dengan F1-score serangan minoritas yang stabil.* |
+| – A | ❌ (ganti RF) | ✅ | ✅ | *Baseline Penuh: Memakai Standard 1D-CNN untuk menguji pengaruh tulang punggung jaringan terhadap performa dasar.* |
+| – B | ✅ | ❌ (tanpa temporal) | ✅ | *Menguji seberapa krusial peran Attention Module dalam mendeteksi pola temporal serangan minoritas.* |
+| – C | ✅ | ✅ | ❌ (tanpa normalisasi) | *Menguji pengaruh prapemrosesan normalisasi data mentah terhadap kecepatan konvergensi akurasi model.* |
 
-**Komponen mana yang diprediksi paling berkontribusi?** _____
+**Komponen mana yang diprediksi paling berkontribusi?** Komponen B (Temporal Attention Module)
 **Mengapa?**
-> ___________________________________________________
-
----
+> Karena komponen ini dirancang khusus sebagai solusi utama untuk mengatasi gap penelitian kita, yaitu kegagalan model lightweight konvensional dalam mengenali karakteristik unik temporal dari pola serangan siber berskala kecil (kelas minoritas).
 
 ## Refleksi
 
 > Apa risiko jika sistem dibangun seperti produk (monolitik, fitur lengkap) lalu baru dilakukan eksperimen? Mengapa arsitektur modular penting untuk riset?
 
 **Jawaban:**
-> ___________________________________________________
-> ___________________________________________________
+> Risiko Sistem Monolitik Langsung Jadi: Jika sistem langsung dibangun sebagai satu kesatuan produk yang utuh tanpa pemisahan komponen sejak awal, peneliti akan menghadapi masalah kegagalan isolasi variabel. Saat hasil akurasi model ternyata buruk atau latensinya membengkak, peneliti tidak akan bisa melacak dengan pasti komponen internal mana yang menjadi pemicu masalah (root cause). Hal ini membuat jalannya eksperimen menjadi bias, subjektif, dan tidak valid secara metode ilmiah.
+
+> Pentingnya Arsitektur Modular untuk Riset: Arsitektur modular bertindak sebagai fondasi utama yang memungkinkan dilakukannya studi ablasi (ablation study) dan uji komparasi secara adil. Dengan memisahkan setiap fungsionalitas ke dalam blok independen, kita bisa memanipulasi, mencabut, atau menukar satu komponen spesifik secara terkontrol tanpa merusak jalannya alur program keseluruhan. Desain ini memastikan bahwa setiap klaim peningkatan performa yang kita tulis di laporan akhir benar-benar dapat dibuktikan secara empiris berasal dari komponen usulan baru tersebut.
