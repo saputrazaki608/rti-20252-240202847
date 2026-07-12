@@ -116,13 +116,13 @@ Tentukan uji statistik yang tepat untuk eksperimen Anda.
 
 | Pertanyaan | Jawaban |
 |-----------|---------|
-| Berapa grup yang dibandingkan? | *Contoh: 3 (BERT, LSTM, SVM)* |
-| Apakah data berpasangan (paired)? | |
-| Apakah distribusi normal? (uji normalitas) | |
-| **Uji yang dipilih:** | |
-| **Justifikasi:** | |
+| Berapa grup yang dibandingkan? | *3 grup (Proposed Lightweight CNN, Baseline Hybrid CNN-LSTM, Baseline Standard 1D-CNN)* |
+| Apakah data berpasangan (paired)? | *Tidak (Independent, karena variasi performa dievaluasi dari run acak dengan seed yang independen pada arsitektur terpisah)* |
+| Apakah distribusi normal? (uji normalitas) | *Tidak terdistribusi normal (Karakteristik performa metrik dari data log paket jaringan real-time umumnya memiliki sebaran skewed)* |
+| **Uji yang dipilih:** | *Kruskal-Wallis Test (Uji non-parametrik untuk >2 grup independen)* |
+| **Justifikasi:** | *Eksperimen membandingkan tiga arsitektur model berbeda berskala multivariat di mana asumsi distribusi normal pada populasi skor run tidak terpenuhi (non-parametric)._* |
 
-**Effect size yang akan dilaporkan:** [ ] Cohen's d / [ ] Eta-squared / [ ] Lainnya: ____
+**Effect size yang akan dilaporkan:** [ ] Cohen's d / [v] Eta-squared / [ ] Lainnya: ____
 
 ---
 
@@ -140,11 +140,11 @@ p = 0.045, Cohen's d = 0.74, CI 95% = [0.03, 2.77]
 
 | Aspek | Interpretasi |
 |-------|-------------|
-| Signifikansi statistik | *Contoh: p < 0.05 → signifikan pada α=0.05* |
-| Effect size | *Contoh: d=0.74 → medium-to-large effect* |
-| Practical significance | |
-| Hubungan ke RQ | |
-| Perbandingan literatur | |
+| Signifikansi statistik | *p = 0.045 --> Signifikan secara statistik pada tingkat a = 0.05 karena nilai p < 0.05. Ada perbedaan nyata antara performa akurasi Model A dan Model B.* |
+| Effect size | *d = 0.74 --> Medium-to-large effect. Menunjukkan bahwa intervensi perubahan struktur arsitektur memberikan efek kekuatan perbedaan yang substansial pada hasil akhir akurasi.* |
+| Practical significance | *Selisih nilai rata-rata akurasi secara riil adalah 1.4% (89.2% vs 87.8%). Dalam konteks deteksi serangan siber skala enterprise dengan jutaan paket log per detik, peningkatan $1.4\%$ ini sangat krusial karena berhasil mereduksi ribuan potensi ancaman lolos (false negatives).* |
+| Hubungan ke RQ | *Menjawab pertanyaan penelitian (Research Question) mengenai efektivitas integrasi komponen baru terhadap akurasi model; terbukti bahwa modifikasi berhasil meningkatkan performa klasifikasi secara valid.* |
+| Perbandingan literatur | *Hasil akurasi Model A sebesar 89.2% ini sejalan bahkan melampaui beberapa penelitian terdahulu yang rata-rata tertahan di angka $86-88% untuk deteksi berbasis arsitektur lightweight.* |
 
 ---
 
@@ -152,28 +152,24 @@ p = 0.045, Cohen's d = 0.74, CI 95% = [0.03, 2.77]
 
 Latih kemampuan failure analysis: hipotesis TIDAK didukung. Apa yang bisa dipelajari?
 
-**Skenario:** Metode baru Anda mendapat F1 = 83.2%, baseline = 84.7%. p = 0.12 (tidak signifikan).
-
+**Skenario:** Tabel Evaluasi Skenario Hipotesis Tidak Didukung (F1 = 83.2%, Baseline = 84.7%, p = 0.12)
 | Pertanyaan | Jawaban |
 |-----------|---------|
-| Apakah ini "gagal"? | *Contoh: Bukan gagal total — hipotesis tidak terdukung adalah temuan yang valid dan bisa menjadi kontribusi.* |
-| Kemungkinan penyebab? | *Contoh: Metode baru menambah kompleksitas komputasi (+40% waktu) tanpa peningkatan F1 yang cukup — overhead tidak sebanding.* |
-| Boundary condition? | *Contoh: Metode ini hanya efektif ketika data ≥ 10.000 record; di dataset kecil (<1.000), baseline lebih stabil.* |
-| Insight yang bisa diambil? | *Contoh: Ada trade-off ukuran data vs kompleksitas — rekomendasikan hybrid approach yang adaptif berdasarkan ukuran dataset.* |
-| Apakah layak dilaporkan? Mengapa? | *Contoh: Ya — negative result + boundary condition analysis adalah kontribusi riset yang diakui komunitas (ex: ACL, SIGIR). Mencegah riset duplikasi yang berulang.* |
+| Apakah ini "gagal"? | *Bukan gagal total — Hasil statistik non-signifikan (p > 0.05) merupakan temuan ilmiah yang valid yang menunjukkan bahwa penambahan kompleksitas modul tidak selalu berkorelasi positif pada performa klasifikasi paket.* |
+| Kemungkinan penyebab? | *Penambahan lapisan arsitektur baru memicu terjadinya overfitting pada subset data latih atau menyebabkan hilangnya representasi spasial fitur esensial dari log paket akibat reduksi dimensi yang terlalu agresif.* |
+| Boundary condition? | *Metode baru ini kurang optimal jika diimplementasikan pada kondisi dataset yang memiliki ketimpangan kelas (class imbalance) sangat ekstrem antar kategori serangan siber.* |
+| Insight yang bisa diambil? | *Diperlukan mekanisme penyeimbangan data (data balancing) seperti SMOTE atau weighted loss function terlebih dahulu sebelum menyalurkan fitur ke dalam arsitektur model usulan.* |
+| Apakah layak dilaporkan? Mengapa? | *Ya — Laporan negative result ini penting untuk dipublikasikan guna mencegah komunitas peneliti lain melakukan duplikasi riset struktural yang sama dan memberikan batasan batasan teknis baru.* |
 
 **Limitation terkait:**
 | Jenis | Ancaman | Dampak |
 |-------|---------|--------|
-| *Contoh: Statistical* | *Contoh: Hanya 5 run per skenario* | *Power test rendah* |
-| | | |
-| | | |
+| *Statistical* | *Jumlah pengulangan simulasi terbatas (n=10)* | *Nilai power test statistik berisiko rendah dalam mendeteksi signifikansi margin tipis.* |
+| *External Validity* | *Evaluasi hanya menggunakan satu ekosistem dataset (CICIDS2017)* | *Generalisasi model terhadap pola ancaman siber baru atau variasi arsitektur jaringan lain belum teruji penuh.* |
 
 ---
 
 ## Refleksi
 
 > Apakah "failure" dalam riset benar-benar gagal, atau justru kontribusi? Bagaimana failure analysis mengubah cara Anda melihat hasil negatif?
-
-> ___________________________________________________
-> ___________________________________________________
+Hasil negatif atau tidak terdukungnya sebuah hipotesis bukanlah sebuah kegagalan personal dalam riset, melainkan sebuah kontribusi ilmiah yang objektif. Failure analysis mengubah sudut pandang saya dari yang awalnya menganggap hasil negatif sebagai penanda cacatnya sebuah eksperimen, menjadi sebuah fondasi penting untuk memetakan boundary conditions (batas kemampuan) suatu model. Mengetahui dengan pasti di mana, kapan, dan mengapa sebuah arsitektur deep learning tidak berfungsi memberikan kontribusi pengetahuan yang sama berharganya dengan mengetahui aspek keberhasilannya, sekaligus memberikan peta jalan yang jelas untuk perbaikan iterasi riset berikutnya.
